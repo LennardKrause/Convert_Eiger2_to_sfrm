@@ -29,17 +29,18 @@ def write_saint_mask(set, _ARGS):
     data = np.rot90(data, k=1, axes=(1, 0))
         
     # make up a name for the mask
-    # the masks we use are called X-ray Aperture (xa) files in saint
-    # have the format: some_data_xa_01_0001.sfrm
-    # and must be in the same folder as the frames
+    # the masks we use are called X-ray Aperture (xa) files in saint and
+    # have the naming convention: some_data_xa_01_0001.sfrm 
+    # they can be provided per run and must be stored together with the frames
     mask_name = '{}_xa_{:02}_0001.sfrm'.format(os.path.join(_ARGS._OUT, _ARGS._NAM), _ARGS._RUN)
     
     # the dead areas are flagged as saturated, so their value is 65535 for
-    # 16 bit unsigned integers, Eiger2 images can be stored at 16 or 32 bit
-    # _ARGS._IBD has that value. So, everything saturated can't be trusted,
-    # everything below that value (even zero) is data and is set to 1 (active)
+    # 16 bit unsigned integers. Eiger2 images can be stored at 16 or 32 bit
+    # _ARGS._IBD knows that value.
+    # Everything saturated can't be trusted, everything below (even zero)
+    # is data and is set to 1 (active)
     data[data < _ARGS._IBD] = 1
-    # dead areas are set to 0 (inactive)
+    # the dead areas are set to 0 (inactive)
     data[data == _ARGS._IBD] = 0
     
     # calculate detector pixel per cm
