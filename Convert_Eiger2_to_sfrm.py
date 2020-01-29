@@ -353,7 +353,7 @@ def convert_SP8_Eiger2_Bruker(fnam, inum, isum, iexp, iswp, idat, src_wav=0.2454
     write_bruker_frame(fnam, header, idat)
     return True
 
-def extract_data(set, idx, inum, _ARGS):
+def parallel_read(set, idx, inum, _ARGS):
     # open the h5 file and sum the images in the given range
     with h5py.File(_ARGS._H5F, 'r') as h5:
         arr2d = np.sum(h5['entry/data'][set][idx:idx+_ARGS._SUM,:,:], axis=0)
@@ -368,18 +368,28 @@ def extract_data(set, idx, inum, _ARGS):
     
 if __name__ == '__main__':
     '''
+     Script to convert Eiger2 CdTe 1M data collected at SPring-8/BL02B1 to Bruker .sfrm format
+     
      The goniometer angles Chi and 2-Theta for the given run have to be provided
      as arguments as these are unavailable from the h5 files metadata
-      - _ARGS._CHI Chi angle
-      - _ARGS._TTH 2-Theta angle
+      -c: Chi angle
+      -t: 2-Theta angle
+      -r: Run number
      
-     The omega scan range (in degrees per image) has to be specified as well
-      - _ARGS._OSR Omega scan range deg/image
+     The omega scan range (in degrees per image) has to be specified
+      -a: Omega scan range deg/image
       
-     The wavelength stored if the h5 file is inaccuarate as it is the set energy
-     threshhold and has to be provided as well
-      - _ARGS._WAV
+     The wavelength stored if the h5 file is inaccuarate as it is the
+     set energy threshhold and has to be provided as well
+      -w: Wavelength
      
+     Images can be combined to reduce the number of sfrm files
+      -s: Number of images to sum
+      
+      - Exposure time and scan range is adjusted accordingly
+      - The slice or number of combined images has to be a multiple
+        of the total number of images
+    
      Info read from the metadata:
       - the frametime (exposure time per image)
       - image bit depth (to identify bad pixels)
@@ -393,8 +403,7 @@ if __name__ == '__main__':
         reads a slice (_ARGS._SUM) of data, summes up the arrays
         and converts the resulting array to sfrm format
       - not I/O bound because of compression?
-      - speedup increases roughly linear with the number of CPU!
-      - 
+      - speedup increases roughly linear with the CPU number!
     '''
     # interpret the arguments
     _ARGS = init_argparser()
@@ -454,7 +463,7 @@ if __name__ == '__main__':
                 # increment the sfrm image number
                 inum += 1
                 # run the conversion of the slice in parallel
-                pool.apply_async(extract_data, args=[entry,idx,inum,_ARGS], callback=converted.append)
+                pool.apply_async(parallel_read, args=[entry,idx,inum,_ARGS], callback=converted.append)
                 # increment start
                 idx += _ARGS._SUM
         # we're done filling the pool
