@@ -54,7 +54,7 @@ def prepare_saint_mask(set, _ARGS):
     # fill known header items
     header['NCOLS']      = [data.shape[1]]             # Number of pixels per row; number of mosaic tiles in X; dZ/dX
     header['NROWS']      = [data.shape[0]]             # Number of rows in frame; number of mosaic tiles in Y; dZ/dY value
-    header['CCDPARM'][:] = [0.00, 1.00, 1.00, 1.00, 1169523]
+    header['CCDPARM'][:] = [0.00, 1.00, 1.00, 1.00, _ARGS._IBD]
     header['DETPAR'][:]  = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
     header['DETTYPE'][:] = ['PILATUS3-1M', pix_per_512, 0.00, 0, 0.001, 0.0, 0]
     header['SITE']       = ['']                             # Site name
