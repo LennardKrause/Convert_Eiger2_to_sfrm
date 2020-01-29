@@ -24,13 +24,12 @@ def write_saint_mask(set, _ARGS):
     # open the h5 file and read the first image
     with h5py.File(_ARGS._H5F, 'r') as h5:
         data = h5['entry/data'][set][0,:,:]
-    print(data.shape)
-    print(data)
+        
     # make up a name for the mask
     # the masks we use are called X-ray Aperture (xa) files in saint
     # have the format: some_data_xa_01_0001.sfrm
     # and must be in the same folder as the frames
-    mnam = '{}_xa_{:02}_0001.sfrm'.format(os.path.join(_ARGS._OUT, _ARGS._NAM), _ARGS._RUN)
+    mask_name = '{}_xa_{:02}_0001.sfrm'.format(os.path.join(_ARGS._OUT, _ARGS._NAM), _ARGS._RUN)
     
     # the dead areas are flagged as saturated (_ARGS._IBD)
     # set them to -1
@@ -60,7 +59,7 @@ def write_saint_mask(set, _ARGS):
     header['USER']       = ['USER']                         # Username
     header['SOURCEK']    = ['?']                            # X-ray source kV
     header['SOURCEM']    = ['?']                            # Source milliamps
-    header['FILENAM']    = [mnam]
+    header['FILENAM']    = [mask_name]
     header['TYPE']       = ['ACTIVE MASK']                  # String indicating kind of data in the frame
     header['NFRAMES']    = ['?']                            # Number of frames in the series
     header['NEXP'][2]    = 0
@@ -79,7 +78,7 @@ def write_saint_mask(set, _ARGS):
     header['DISPLIM'][:] = [0.0, 63.0]                      # Recommended display contrast window settings
     
     # write the frame
-    write_bruker_frame(mnam, header, data)
+    write_bruker_frame(mask_name, header, data)
 
 def init_bruker_header():
     header = collections.OrderedDict()
@@ -337,7 +336,7 @@ def write_bruker_frame(fname, fheader, fdata):
         if bpp < 4 and fheader['NOVERFL'][2] > 0:
             brukerFrame.write(table_data_uint32.tobytes())
 
-def convert_SP8_Eiger2_Bruker(fnam, inum, isum, iexp, iswp, idat, src_wav=0.245479, gon_chi=0.0, gon_phi=0.0, gon_tth=0.0, gon_dxt=103.5124, det_max=65535, x=508.6675, y=469.8171):
+def convert_SP8_Eiger2_Bruker(fname, inum, isum, iexp, iosr, idat, src_wav=0.245479, gon_chi=0.0, gon_phi=0.0, gon_tth=0.0, gon_dxt=103.5124, det_max=65535, x=508.6675, y=469.8171):
     
     # Goni is vertical, rotate by 90
     idat = np.rot90(idat, k=1, axes=(1, 0))
@@ -351,7 +350,7 @@ def convert_SP8_Eiger2_Bruker(fnam, inum, isum, iexp, iswp, idat, src_wav=0.2454
     
     # scan parameters
     # increment, exposure time, start and end angle of the omega scan
-    scn_inc = iswp*isum
+    scn_inc = iosr*isum
     scn_exp = iexp*isum
     scn_end = inum*scn_inc
     scn_sta = scn_end - scn_inc
@@ -411,7 +410,7 @@ def convert_SP8_Eiger2_Bruker(fnam, inum, isum, iexp, iswp, idat, src_wav=0.2454
     header['CREATED']    = ['?']                                                # use creation time of raw data!
     
     # write the frame
-    write_bruker_frame(fnam, header, idat)
+    write_bruker_frame(fname, header, idat)
     return True
 
 def parallel_read(set, idx, inum, _ARGS):
