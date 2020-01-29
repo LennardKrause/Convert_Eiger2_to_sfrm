@@ -24,6 +24,9 @@ def write_saint_mask(set, _ARGS):
     # open the h5 file and read the first image
     with h5py.File(_ARGS._H5F, 'r') as h5:
         data = h5['entry/data'][set][0,:,:]
+    
+    # The goniometer is vertical, rotate by 90
+    data = np.rot90(data, k=1, axes=(1, 0))
         
     # make up a name for the mask
     # the masks we use are called X-ray Aperture (xa) files in saint
@@ -31,13 +34,13 @@ def write_saint_mask(set, _ARGS):
     # and must be in the same folder as the frames
     mask_name = '{}_xa_{:02}_0001.sfrm'.format(os.path.join(_ARGS._OUT, _ARGS._NAM), _ARGS._RUN)
     
-    # the dead areas are flagged as saturated (_ARGS._IBD)
-    # set them to -1
-    data[data == _ARGS._IBD] = -1
-    # everything else (even zero) is valid data and is set to 1 (active)
-    data[data >=  0] = 1
-    # now the dead areas are set to 0 (inactive)
-    data[data < 0] = 0
+    # the dead areas are flagged as saturated, so their value is 65535 for
+    # 16 bit unsigned integers, Eiger2 images can be stored at 16 or 32 bit
+    # _ARGS._IBD has that value. So, everything saturated can't be trusted,
+    # everything below that value (even zero) is data and is set to 1 (active)
+    data[data < _ARGS._IBD] = 1
+    # dead areas are set to 0 (inactive)
+    data[data == _ARGS._IBD] = 0
     
     # calculate detector pixel per cm
     # this is normalized to a 512x512 detector format
