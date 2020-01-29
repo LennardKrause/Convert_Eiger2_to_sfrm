@@ -2,7 +2,7 @@
 
 ##### Script to convert Eiger2 CdTe 1M data collected at SPring-8/BL02B1 to Bruker .sfrm format
 
-##### The goniometer angles Chi and 2-Theta for the given run have to be provided as arguments as these are unavailable from the h5 files metadata
+##### Chi and 2-Theta for the given run have to be provided as arguments as these are unavailable from the h5 files metadata
  - _ARGS._CHI: Chi angle
  - _ARGS._TTH: 2-Theta angle
 
