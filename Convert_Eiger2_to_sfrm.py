@@ -20,7 +20,7 @@ def init_argparser():
         raise SystemExit
     return parser.parse_args()
 
-def write_saint_mask(set, _ARGS):
+def prepare_saint_mask(set, _ARGS):
     # open the h5 file and read the first image
     with h5py.File(_ARGS._H5F, 'r') as h5:
         data = h5['entry/data'][set][0,:,:]
@@ -504,8 +504,8 @@ if __name__ == '__main__':
         print('ERROR: Total number of images ({}) is not a multiple of {}!'.format(sum(h5inum), _ARGS._SUM))
         raise SystemExit
     
-    # write a SAINT integration mask (X-ray Aperture, xa) file
-    write_saint_mask(h5files[0], _ARGS)
+    # prepare a SAINT integration mask (X-ray Aperture, xa) file
+    prepare_saint_mask(h5files[0], _ARGS)
     
     # todo: total number of images to be converted
     todo = sum(h5inum) // _ARGS._SUM
