@@ -1,6 +1,6 @@
 # Convert_Eiger2_to_sfrm (early beta)
 
-Script to convert Eiger2 CdTe 1M data collected at [SPring-8/BL02B1](http://www.spring8.or.jp/en/) to Bruker .sfrm format
+Script to convert Eiger2 CdTe 1M data collected at [SPring-8](http://www.spring8.or.jp/en/)/[BL02B1](http://www.spring8.or.jp/wkg/BL02B1/instrument/lang-en/INS-0000001275/instrument_summary_view) to Bruker .sfrm format
 and prepare SAINT (Bruker SAINT+ Integration Engine V8.35A) X-ray Aperture (xa) integration masks.
 
 ## Important
