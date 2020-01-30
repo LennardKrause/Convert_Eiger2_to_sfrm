@@ -467,7 +467,7 @@ if __name__ == '__main__':
         reads a slice (_ARGS._SUM) of data, summes up the arrays
         and converts the resulting array to sfrm format
       - not I/O bound because of compression?
-      - speedup increases roughly linear with the CPU number!
+      - speed increases roughly linear with the CPU number!
     '''
     # interpret the arguments
     _ARGS = init_argparser()
