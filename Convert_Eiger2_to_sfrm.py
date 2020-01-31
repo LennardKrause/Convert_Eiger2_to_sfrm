@@ -417,18 +417,20 @@ def convert_SP8_Eiger2_Bruker(fname, inum, isum, iexp, iosr, idat, src_wav=0.245
     write_bruker_frame(fname, header, idat)
     return True
 
-def parallel_read(set, idx, inum, _ARGS):
+def parallel_read(set, idx, inum, _ARGS, overwrite=False):
+    # guess a name
+    inam = '{}_{:02}_{:04}.sfrm'.format(os.path.join(_ARGS._OUT, _ARGS._NAM), _ARGS._RUN, inum)
+    
+    # Overwrite existing files if overwrite is flagged True
+    if not overwrite and os.path.isfile(inam):
+        return False
+        
     # open the h5 file and sum the images in the given range
     with h5py.File(_ARGS._H5F, 'r') as h5:
         arr2d = np.sum(h5['entry/data'][set][idx:idx+_ARGS._SUM,:,:], axis=0)
-    # guess a name
-    inam = '{}_{:02}_{:04}.sfrm'.format(os.path.join(_ARGS._OUT, _ARGS._NAM), _ARGS._RUN, inum)
     # convert the summed 2d array to Bruker sfrm
-    # if successful return True else False
-    if convert_SP8_Eiger2_Bruker(inam, inum, _ARGS._SUM, _ARGS._FET, _ARGS._OSR, arr2d, src_wav=_ARGS._WAV, det_max=_ARGS._IBD*_ARGS._SUM, gon_chi=_ARGS._CHI, gon_tth=_ARGS._TTH):
-        return True
-    else:
-        return False
+    # if successful returns True else False
+    return convert_SP8_Eiger2_Bruker(inam, inum, _ARGS._SUM, _ARGS._FET, _ARGS._OSR, arr2d, src_wav=_ARGS._WAV, det_max=_ARGS._IBD*_ARGS._SUM, gon_chi=_ARGS._CHI, gon_tth=_ARGS._TTH)
     
 if __name__ == '__main__':
     '''
@@ -521,8 +523,8 @@ if __name__ == '__main__':
         # iterate over the h5files, the enumeration (idx) is needed to get the
         # number of images stored in this h5file (h5inum[idx]) to end the while loop
         for ih5, entry in enumerate(h5files):
-            # index to start the current slice and slice from start to start + _ARGS._SUM
-            # the data (arrays) of one slice are summed and converted to sfrm
+            # index for the current slice, slice from idx to idx + _ARGS._SUM
+            # the slice is summed and converted to sfrm
             idx = 0
             # as long as idx + _ARGS._SUM is smaller than the number of images
             # in h5inum[ih5] there is work to do
@@ -531,7 +533,7 @@ if __name__ == '__main__':
                 inum += 1
                 # run the conversion of the slice in parallel
                 pool.apply_async(parallel_read, args=[entry,idx,inum,_ARGS], callback=converted.append)
-                # increment start
+                # increment idx
                 idx += _ARGS._SUM
         # we're done filling the pool
         pool.close()
