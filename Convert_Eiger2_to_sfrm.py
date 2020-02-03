@@ -350,6 +350,9 @@ def convert_SP8_Eiger2_Bruker(fname, inum, isum, iexp, iosr, idat, src_wav=0.245
     det_bcy = 1028 - x
     
     # set bad pixels to zero
+    # this is only cosmetic but makes the indexing / visual analysis easier
+    # as long as the xa mask files are used during integration
+    # these pixels are masked and properly handled with
     idat[idat == det_max] = 0
     
     # scan parameters
@@ -451,13 +454,11 @@ if __name__ == '__main__':
      
      Images can be combined to reduce the number of sfrm files
       -s: Number of images to sum
-      
       - Exposure time and scan range is adjusted accordingly
-      - The slice or number of combined images has to be a multiple
-        of the total number of images
+      - The number of combined images has to be a multiple of the total number
     
      Info read from the metadata:
-      - the frametime (exposure time per image)
+      - frametime (exposure time per image)
       - image bit depth (to identify bad pixels)
       - x and y pixel dimensions of the detector
      
@@ -496,12 +497,12 @@ if __name__ == '__main__':
         # remove the entries of unavailable files from the list
         h5files = [h5files[i] for i,x in enumerate(h5data) if x is not None]
     
-    # check if the image number of images stored in the individual files are a
-    # multiple of the number of images to sum
+    # check if the number of images stored in the individual files are are
+    # consistend with the requested number of images to sum
     if all([i % _ARGS._SUM for i in h5inum]):
         print('ERROR: Individual number of images {} is not compatible with {}!'.format(h5inum, _ARGS._SUM))
         raise SystemExit
-    # check if total number of images is a multiple of the desired sum
+    # check if total number of images is a multiple of the requested sum
     if sum(h5inum) % _ARGS._SUM != 0:
         print('ERROR: Total number of images ({}) is not a multiple of {}!'.format(sum(h5inum), _ARGS._SUM))
         raise SystemExit
