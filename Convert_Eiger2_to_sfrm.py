@@ -362,6 +362,9 @@ def convert_SP8_Eiger2_Bruker(fname, inum, isum, iexp, iosr, idat, src_wav=0.245
     scn_end = inum*scn_inc
     scn_sta = scn_end - scn_inc
 
+    # SP8 to Bruker conversion:
+    gon_chi = -gon_chi
+    
     # calculate detector pixel per cm
     # this is normalized to a 512x512 detector format
     # Eiger2-1M pixel size is 0.075 mm 
@@ -529,7 +532,7 @@ if __name__ == '__main__':
             idx = 0
             # as long as idx + _ARGS._SUM is smaller than the number of images
             # in h5inum[ih5] there is work to do
-            while idx + _ARGS._SUM < h5inum[ih5]:
+            while idx + _ARGS._SUM <= h5inum[ih5]:
                 # increment the sfrm image number
                 inum += 1
                 # run the conversion of the slice in parallel
