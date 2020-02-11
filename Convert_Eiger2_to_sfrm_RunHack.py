@@ -495,6 +495,10 @@ if __name__ == '__main__':
                 idx += _ARGS._SUM
                 # increment the sfrm image number
                 inum += 1
+                # hardcoded framecount for a run!
+                # this info can be retrieved automatically
+                # given some time to think about it.
+                # #FutureProblem
                 if inum > 1800:
                     inum = 1
         # we're done filling the pool
