@@ -4,6 +4,11 @@ Script to convert Dectris Eiger2 CdTe 1M HDF5 (.h5) data to Bruker (.sfrm) forma
 
 It is currently designed to be used with data collected at [SPring-8](http://www.spring8.or.jp/en/)/[BL02B1](http://www.spring8.or.jp/wkg/BL02B1/instrument/lang-en/INS-0000001275/instrument_summary_view)
 
+#### Addition: Convert_Eiger2_to_sfrm_RunHack
+ - sloppy workaround to handle master.h5 files that contain more than one run
+ - RUNLIST = [(chi angle, 2-theta, run number), (...), ...]
+ - _ARGS._RUNLIST = [( 0.000,   0.000,  1), ( 0.000,   0.000,  1), (15.000,   0.000,  2), (15.000,   0.000,  2)]
+
 ## Important
  - This program is distributed in the hope that it will be useful but WITHOUT ANY WARRANTY
  - Bruker is not associated with this software and will not support this
